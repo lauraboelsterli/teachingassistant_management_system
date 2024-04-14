@@ -12,9 +12,9 @@ Students = Blueprint('Students', __name__)
 # Get all customers from the DB
 @Students.route('/students', methods=['GET'])
 
-def get_customers():
+def get_students():
     cursor = db.get_db().cursor()
-    cursor.execute('select * from Students')
+    cursor.execute('select * from Students NATURAL JOIN StudentsEmails')
     row_headers = [x[0] for x in cursor.description]
     json_data = []
     theData = cursor.fetchall()
@@ -26,10 +26,10 @@ def get_customers():
     return the_response
 
 # Get customer detail for customer with particular userID
-@Students.route('/customers/<userID>', methods=['GET'])
-def get_customer(userID):
+@Students.route('/students/<ID>', methods=['GET'])
+def get_customer(ID):
     cursor = db.get_db().cursor()
-    cursor.execute('select * from customers where id = {0}'.format(userID))
+    cursor.execute('select * from Students NATURAL JOIN StudentsEmails where StudentID = {0}'.format(ID))
     row_headers = [x[0] for x in cursor.description]
     json_data = []
     theData = cursor.fetchall()
