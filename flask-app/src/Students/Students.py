@@ -86,8 +86,6 @@ def get_grades():
     the_response.mimetype = 'application/json'
     return the_response
 
-
-
 from datetime import datetime
 import pytz
 
@@ -124,6 +122,5 @@ def update_regradeRequests():
     r =cursor.execute(query, data)
     db.get_db().commit()
     return 'grade updated!'
-
 
 
