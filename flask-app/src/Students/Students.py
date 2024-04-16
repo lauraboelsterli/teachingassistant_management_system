@@ -39,12 +39,12 @@ def get_customer(ID):
     the_response.mimetype = 'application/json'
     return the_response
 
-
-# get assignments that have not been graded yet AND count of how many submissions still need to be graded
-@Students.route('/Assignments', methods=['GET'])
+# returns all submissions that have not been graded yet
+@Students.route('/Submissions', methods=['GET'])
 def get_assignments():
     cursor = db.get_db().cursor()
-    cursor.execute('SELECT s.AssignmentID,COUNT(s.SubmissionID) AS SubmissionCount FROM Submissions s JOIN Assignments a ON s.AssignmentID = a.AssignmentID WHERE s.Grade IS NULL GROUP BY s.AssignmentID')
+    # cursor.execute('SELECT s.AssignmentID,s.SubmissionID FROM Submissions s JOIN Assignments a ON s.AssignmentID = a.AssignmentID WHERE s.Grade IS NULL')
+    cursor.execute('SELECT * FROM Submissions s JOIN Assignments a ON s.AssignmentID = a.AssignmentID WHERE s.Grade IS NULL')
     row_headers = [x[0] for x in cursor.description]
     json_data = []
     theData = cursor.fetchall()
@@ -55,12 +55,14 @@ def get_assignments():
     the_response.mimetype = 'application/json'
     return the_response
 
-# route 2; get oh schedule 
-# changed endpoint to OfficeHours
+
+
+# @Students.route('/OfficeHours', methods=['GET'])
 @Students.route('/OfficeHours', methods=['GET'])
 def get_schedule():
     cursor = db.get_db().cursor()
-    cursor.execute('SELECT dtw.Day AS Day, dtw.Timeslot AS Timeslot, e.FirstName, e.LastName FROM Schedule s JOIN DayTimeWorked dtw ON dtw.ScheduleID = s.ScheduleID JOIN Employees e ON e.EmployeeID = s.EmployeeID')
+    # cursor.execute('SELECT dtw.Day AS Day, dtw.Timeslot AS Timeslot, e.FirstName, e.LastName FROM Schedule s JOIN DayTimeWorked dtw ON dtw.ScheduleID = s.ScheduleID JOIN Employees e ON e.EmployeeID = s.EmployeeID')
+    cursor.execute('SELECT * FROM Schedule s JOIN DayTimeWorked dtw ON dtw.ScheduleID = s.ScheduleID JOIN Employees e ON e.EmployeeID = s.EmployeeID')
     row_headers = [x[0] for x in cursor.description]
     json_data = []
     theData = cursor.fetchall()
@@ -86,8 +88,7 @@ def get_grades():
     the_response.mimetype = 'application/json'
     return the_response
 
-from datetime import datetime
-import pytz
+
 
 def parse_http_date(http_date):
     if http_date is None:
@@ -102,7 +103,10 @@ def parse_http_date(http_date):
         return dt.strftime('%Y-%m-%d %H:%M:%S')
     except ValueError as e:
         raise ValueError(f"Invalid date format: {http_date}")
+    
 
+# chnage this and add resource assignmentid /or/ submissionid, maybe?? or dont and just delete that from matrix 
+# ^^^^^^^
 # route 4: update grade for submissions 
 @Students.route('/Gradesupdate', methods=['PUT'])
 def update_regradeRequests():
@@ -122,5 +126,3 @@ def update_regradeRequests():
     r =cursor.execute(query, data)
     db.get_db().commit()
     return 'grade updated!'
-
-
