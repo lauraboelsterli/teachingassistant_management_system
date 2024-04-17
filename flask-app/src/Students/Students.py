@@ -90,8 +90,6 @@ def get_grades():
     the_response.mimetype = 'application/json'
     return the_response
 
-
-
 def parse_http_date(http_date):
     if http_date is None:
         # handle the case where no date is provided 
@@ -107,8 +105,6 @@ def parse_http_date(http_date):
         raise ValueError(f"Invalid date format: {http_date}")
     
 
-# chnage this and add resource assignmentid /or/ submissionid, maybe?? or dont and just delete that from matrix 
-# ^^^^^^^
 # route 4: update grade for submissions 
 @Students.route('/Gradesupdate', methods=['PUT'])
 def update_regradeRequests():
@@ -128,3 +124,59 @@ def update_regradeRequests():
     r =cursor.execute(query, data)
     db.get_db().commit()
     return 'grade updated!'
+
+
+
+
+
+# get the discussion board post for last route for Alex
+# and then on comments be able to post comment
+@Students.route('/DiscussionBoardContent', methods=['GET'])
+def get_discussion_content():
+    cursor = db.get_db().cursor()
+    cursor.execute('SELECT * FROM DiscussionPosts')
+    row_headers = [x[0] for x in cursor.description]
+    json_data = []
+    theData = cursor.fetchall()
+    for row in theData:
+        json_data.append(dict(zip(row_headers, row)))
+    the_response = make_response(jsonify(json_data))
+    the_response.status_code = 200
+    the_response.mimetype = 'application/json'
+    return the_response
+
+
+@Students.route('/discussionboard', methods=['POST'])
+def add_reply():
+#   # collecting data from the request object
+    the_data = request.json
+    current_app.logger.info(the_data)
+
+
+
+
+    #     #extracting the variable
+    post_id = the_data['PostID']
+    employee_id = the_data['EmployeeID']
+    time_posted = the_data['TimePosted']
+    dp_answer = the_data['DiscussionPostAnswer']
+    dp_id = the_data['DPAnswerID']
+
+
+
+
+    #     # Constructing the query
+    query = 'insert into DiscussionPostAnswers (PostID, EmployeeID, TimePosted, DiscussionPostAnswer, DPAnswerID) values ("'
+    query += post_id + '", "'
+    query += employee_id + '", "'
+    query += time_posted + '", "'
+    query += dp_answer + '", '
+    query += dp_id + ')'
+    current_app.logger.info(query)
+
+
+    #     # executing and committing the insert statement
+    cursor = db.get_db().cursor()
+    cursor.execute(query)
+    db.get_db().commit()
+    return 'Success!'
