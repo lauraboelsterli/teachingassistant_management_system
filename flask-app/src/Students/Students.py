@@ -58,12 +58,10 @@ def get_assignments():
     return the_response
 
 
-
-# @Students.route('/OfficeHours', methods=['GET'])
+# returns oh schedule
 @Students.route('/OfficeHours', methods=['GET'])
 def get_schedule():
     cursor = db.get_db().cursor()
-    # cursor.execute('SELECT dtw.Day AS Day, dtw.Timeslot AS Timeslot, e.FirstName, e.LastName FROM Schedule s JOIN DayTimeWorked dtw ON dtw.ScheduleID = s.ScheduleID JOIN Employees e ON e.EmployeeID = s.EmployeeID')
     cursor.execute('SELECT * FROM Schedule s JOIN DayTimeWorked dtw ON dtw.ScheduleID = s.ScheduleID JOIN Employees e ON e.EmployeeID = s.EmployeeID')
     row_headers = [x[0] for x in cursor.description]
     json_data = []
@@ -110,7 +108,7 @@ def parse_http_date(http_date):
 def update_regradeRequests():
     the_data = request.json
     current_app.logger.info(the_data)
-
+    
     #extracting the variable
     grade = the_data['Grade']
     graded_by = the_data['GradedBy']
@@ -124,9 +122,6 @@ def update_regradeRequests():
     r =cursor.execute(query, data)
     db.get_db().commit()
     return 'grade updated!'
-
-
-
 
 
 # get the discussion board post for last route for Alex
@@ -148,24 +143,17 @@ def get_discussion_content():
 
 @Students.route('/discussionboard', methods=['POST'])
 def add_reply():
-#   # collecting data from the request object
+# collecting data from the request object
     the_data = request.json
     current_app.logger.info(the_data)
-
-
-
-
-    #     #extracting the variable
+    #extracting the variable
     post_id = the_data['PostID']
     employee_id = the_data['EmployeeID']
     time_posted = the_data['TimePosted']
     dp_answer = the_data['DiscussionPostAnswer']
     dp_id = the_data['DPAnswerID']
 
-
-
-
-    #     # Constructing the query
+    # Constructing the query
     query = 'insert into DiscussionPostAnswers (PostID, EmployeeID, TimePosted, DiscussionPostAnswer, DPAnswerID) values ("'
     query += post_id + '", "'
     query += employee_id + '", "'
